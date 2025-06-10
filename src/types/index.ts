@@ -1,10 +1,13 @@
 export interface AudioFile {
   id: string;
   user_id: string;
+  name: string;
+  storage_path: string;
+  type: string;
+  size: number;
   title: string;
   artist?: string;
   description?: string;
-  file_path: string;
   file_url: string;
   duration: number;
   created_at: string;
@@ -26,5 +29,6 @@ export interface CollectionTrack {
   collection_id: string;
   audio_id: string;
   position: number;
+  created_at: string;
   audio_file: AudioFile;
 }

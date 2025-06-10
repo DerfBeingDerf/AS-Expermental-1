@@ -16,7 +16,7 @@ export const uploadAudioFile = async (
   const filePath = `${userId}/audio/${fileName}`;
 
   // Upload file to Supabase Storage
-  const { error: uploadError, data: uploadData } = await supabase.storage
+  const { error: uploadError } = await supabase.storage
     .from('audio-files')
     .upload(filePath, file);
 
@@ -37,10 +37,13 @@ export const uploadAudioFile = async (
     .from('audio_files')
     .insert({
       user_id: userId,
+      name: file.name,
+      storage_path: filePath,
+      type: file.type,
+      size: file.size,
       title,
       artist,
       description,
-      file_path: filePath,
       file_url: publicUrl,
       duration,
     })
