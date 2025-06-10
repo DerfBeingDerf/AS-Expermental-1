@@ -192,7 +192,7 @@ export default function CollectionDetailPage() {
               <p>You don't have any audio files to add.</p>
               {user && (
                 <p className="mt-2">
-                  <a href="/upload" className="text-sky-400 hover:text-sky-300">
+                  <a href="/upload\" className="text-sky-400 hover:text-sky-300">
                     Upload new audio files
                   </a> to add them to this collection.
                 </p>
