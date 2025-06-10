@@ -3,18 +3,18 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Music, Plus, ListMusic, Share2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import WaveformPlayer from '../components/audio/WaveformPlayer';
-import PlaylistEmbed from '../components/playlist/PlaylistEmbed';
+import CollectionEmbed from '../components/collection/CollectionEmbed';
 import LoadingSpinner from '../components/layout/LoadingSpinner';
-import { getPlaylist, getPlaylistTracks, getUserAudioFiles, addTrackToPlaylist } from '../lib/api';
-import { Playlist, PlaylistTrack, AudioFile } from '../types';
+import { getCollection, getCollectionTracks, getUserAudioFiles, addTrackToCollection } from '../lib/api';
+import { Collection, CollectionTrack, AudioFile } from '../types';
 
-export default function PlaylistDetailPage() {
-  const { playlistId } = useParams<{ playlistId: string }>();
+export default function CollectionDetailPage() {
+  const { collectionId } = useParams<{ collectionId: string }>();
   const { user, loading } = useAuth();
   const navigate = useNavigate();
 
-  const [playlist, setPlaylist] = useState<Playlist | null>(null);
-  const [tracks, setTracks] = useState<PlaylistTrack[]>([]);
+  const [collection, setCollection] = useState<Collection | null>(null);
+  const [tracks, setTracks] = useState<CollectionTrack[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
@@ -25,23 +25,23 @@ export default function PlaylistDetailPage() {
   const [isAdding, setIsAdding] = useState(false);
   const [addError, setAddError] = useState<string | null>(null);
 
-  const fetchPlaylistData = async () => {
-    if (!playlistId) return;
+  const fetchCollectionData = async () => {
+    if (!collectionId) return;
 
     try {
       setIsLoading(true);
-      const playlistData = await getPlaylist(playlistId);
-      setPlaylist(playlistData);
+      const collectionData = await getCollection(collectionId);
+      setCollection(collectionData);
 
-      if (user && playlistData.user_id !== user.id && !playlistData.is_public) {
-        setError('You do not have access to this playlist.');
+      if (user && collectionData.user_id !== user.id && !collectionData.is_public) {
+        setError('You do not have access to this collection.');
         return;
       }
 
-      const tracksData = await getPlaylistTracks(playlistId);
+      const tracksData = await getCollectionTracks(collectionId);
       setTracks(tracksData);
     } catch (err) {
-      setError('Failed to load playlist details.');
+      setError('Failed to load collection details.');
       console.error(err);
     } finally {
       setIsLoading(false);
@@ -49,8 +49,8 @@ export default function PlaylistDetailPage() {
   };
 
   useEffect(() => {
-    fetchPlaylistData();
-  }, [playlistId, user]);
+    fetchCollectionData();
+  }, [collectionId, user]);
 
   const fetchAvailableAudios = async () => {
     if (!user) return;
@@ -67,25 +67,25 @@ export default function PlaylistDetailPage() {
     if (showAddTrack) {
       fetchAvailableAudios();
     }
-  }, [showAddTrack, user]); // Added user dependency
+  }, [showAddTrack, user]);
 
   const handleAddTrack = async () => {
-    if (!playlistId || !selectedAudioId) return;
+    if (!collectionId || !selectedAudioId) return;
 
     if (tracks.some(track => track.audio_id === selectedAudioId)) {
-      setAddError('This track is already in the playlist.');
+      setAddError('This track is already in the collection.');
       return;
     }
 
     try {
       setIsAdding(true);
       setAddError(null);
-      await addTrackToPlaylist(playlistId, selectedAudioId, tracks.length);
-      await fetchPlaylistData(); // Refetch to update track list and count
+      await addTrackToCollection(collectionId, selectedAudioId, tracks.length);
+      await fetchCollectionData();
       setShowAddTrack(false);
       setSelectedAudioId('');
     } catch (err) {
-      setAddError('Failed to add track to playlist.');
+      setAddError('Failed to add track to collection.');
       console.error(err);
     } finally {
       setIsAdding(false);
@@ -123,36 +123,36 @@ export default function PlaylistDetailPage() {
     );
   }
 
-  if (!playlist) {
+  if (!collection) {
     return (
       <div className="container mx-auto py-8 px-4 text-center">
-        <p>Playlist not found.</p>
+        <p>Collection not found.</p>
       </div>
     );
   }
 
-  const isOwner = user && playlist.user_id === user.id;
+  const isOwner = user && collection.user_id === user.id;
 
   return (
     <div className="container mx-auto py-8 px-4">
-      {/* Playlist Header */}
+      {/* Collection Header */}
       <div className="mb-8">
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-          <div className="flex-1 min-w-0"> {/* Added min-w-0 for proper truncation on flex children */}
-            <h1 className="text-3xl lg:text-4xl font-bold mb-2 break-words">{playlist.title}</h1> {/* Adjusted text size for responsiveness */}
-            {playlist.description && (
-              <p className="text-slate-400 mb-2 break-words">{playlist.description}</p>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-3xl lg:text-4xl font-bold mb-2 break-words">{collection.title}</h1>
+            {collection.description && (
+              <p className="text-slate-400 mb-2 break-words">{collection.description}</p>
             )}
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-slate-400 text-sm"> {/* Ensured wrapping for smaller screens */}
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-slate-400 text-sm">
               <div className="flex items-center">
                 <ListMusic size={16} className="mr-1" />
                 <span>{tracks.length} {tracks.length === 1 ? 'track' : 'tracks'}</span>
               </div>
 
-              {playlist.is_public && (
+              {collection.is_public && (
                 <div className="flex items-center text-sky-400">
                   <Share2 size={16} className="mr-1" />
-                  <span>Public Playlist</span>
+                  <span>Public Collection</span>
                 </div>
               )}
             </div>
@@ -161,12 +161,12 @@ export default function PlaylistDetailPage() {
           {isOwner && (
             <button
               onClick={() => setShowAddTrack(!showAddTrack)}
-              className="btn-secondary whitespace-nowrap w-full md:w-auto mt-4 md:mt-0" /* Full width on mobile, auto on md+ */
+              className="btn-secondary whitespace-nowrap w-full md:w-auto mt-4 md:mt-0"
             >
               {showAddTrack ? (
                 "Cancel"
               ) : (
-                <span className="flex items-center justify-center"> {/* Ensure icon and text are centered */}
+                <span className="flex items-center justify-center">
                   <Plus size={18} className="mr-1" />
                   Add Tracks
                 </span>
@@ -178,8 +178,8 @@ export default function PlaylistDetailPage() {
 
       {/* Add Track Section */}
       {showAddTrack && isOwner && (
-        <div className="card p-4 sm:p-6 mb-8"> {/* Adjusted padding for smaller screens */}
-          <h2 className="text-lg font-semibold mb-4">Add Track to Playlist</h2>
+        <div className="card p-4 sm:p-6 mb-8">
+          <h2 className="text-lg font-semibold mb-4">Add Track to Collection</h2>
 
           {addError && (
             <div className="bg-red-900/50 border border-red-700 text-white p-3 rounded-md mb-4 text-sm">
@@ -189,14 +189,14 @@ export default function PlaylistDetailPage() {
 
           {availableAudios.length === 0 ? (
             <div className="text-slate-400 mb-4">
-              <p>You don't have any audio files to add.</p> {/* Slightly rephrased */}
-              { user && // Only show upload link if user is available for context
+              <p>You don't have any audio files to add.</p>
+              {user && (
                 <p className="mt-2">
                   <a href="/upload" className="text-sky-400 hover:text-sky-300">
                     Upload new audio files
-                  </a> to add them to this playlist.
+                  </a> to add them to this collection.
                 </p>
-              }
+              )}
             </div>
           ) : (
             <div className="space-y-4">
@@ -207,9 +207,9 @@ export default function PlaylistDetailPage() {
                   value={selectedAudioId}
                   onChange={(e) => {
                     setSelectedAudioId(e.target.value);
-                    setAddError(null); // Clear error when selection changes
+                    setAddError(null);
                   }}
-                  className="input" //
+                  className="input"
                 >
                   <option value="">-- Select an audio file --</option>
                   {availableAudios.map((audio) => (
@@ -220,21 +220,21 @@ export default function PlaylistDetailPage() {
                 </select>
               </div>
 
-              <div className="flex flex-col sm:flex-row sm:justify-end gap-3"> {/* Stack buttons on mobile, row on sm+ */}
+              <div className="flex flex-col sm:flex-row sm:justify-end gap-3">
                 <button
                   onClick={() => {
                      setShowAddTrack(false);
-                     setAddError(null); // Clear error on cancel
-                     setSelectedAudioId(''); // Clear selection on cancel
+                     setAddError(null);
+                     setSelectedAudioId('');
                   }}
-                  className="btn bg-slate-600 hover:bg-slate-500 text-white w-full sm:w-auto" // Secondary/cancel button style
+                  className="btn bg-slate-600 hover:bg-slate-500 text-white w-full sm:w-auto"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleAddTrack}
                   disabled={!selectedAudioId || isAdding}
-                  className={`btn-primary ${(!selectedAudioId || isAdding) ? 'opacity-70 cursor-not-allowed' : ''} w-full sm:w-auto`} //
+                  className={`btn-primary ${(!selectedAudioId || isAdding) ? 'opacity-70 cursor-not-allowed' : ''} w-full sm:w-auto`}
                 >
                   {isAdding ? (
                     <span className="flex items-center justify-center">
@@ -242,7 +242,7 @@ export default function PlaylistDetailPage() {
                       Adding...
                     </span>
                   ) : (
-                    "Add to Playlist"
+                    "Add to Collection"
                   )}
                 </button>
               </div>
@@ -252,30 +252,30 @@ export default function PlaylistDetailPage() {
       )}
 
       {/* Tracks and Player/Embed Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8"> {/* Single column on small/medium, 3 columns on large */}
-        <div className="lg:col-span-2"> {/* Takes 2 out of 3 columns on large screens */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2">
           {tracks.length === 0 ? (
-            <div className="card p-6 text-center py-12"> {/* */}
+            <div className="card p-6 text-center py-12">
               <Music size={48} className="text-slate-600 mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">No tracks in this playlist yet</h3>
+              <h3 className="text-lg font-medium mb-2">No tracks in this collection yet</h3>
               <p className="text-slate-400">
-                {isOwner ? "Add some tracks to get started." : "This playlist is empty."}
+                {isOwner ? "Add some tracks to get started." : "This collection is empty."}
               </p>
             </div>
           ) : (
-            <div className="card overflow-hidden"> {/* */}
-              <div className="p-4 bg-slate-800/50"> {/* Header for the tracks table */}
+            <div className="card overflow-hidden">
+              <div className="p-4 bg-slate-800/50">
                 <h2 className="text-lg font-semibold">Tracks</h2>
               </div>
 
-              <div className="overflow-x-auto scrollbar-thin"> {/* Applied scrollbar-thin from index.css for horizontal scrolling */} {/* */}
-                <table className="w-full divide-y divide-slate-700/50 min-w-[600px]"> {/* Added min-width to enforce scroll on smaller views */}
-                  <thead className="bg-slate-800/30"> {/* Added a subtle background to thead */}
+              <div className="overflow-x-auto scrollbar-thin">
+                <table className="w-full divide-y divide-slate-700/50 min-w-[600px]">
+                  <thead className="bg-slate-800/30">
                     <tr>
-                      <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider w-10 sm:w-12">#</th> {/* Adjusted padding and width */}
-                      <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Title</th> {/* Adjusted padding */}
-                      <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider hidden md:table-cell">Artist</th> {/* Hide on small, show on md+ */}
-                      <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider hidden sm:table-cell">Duration</th> {/* Hide on xs, show on sm+ */}
+                      <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider w-10 sm:w-12">#</th>
+                      <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Title</th>
+                      <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider hidden md:table-cell">Artist</th>
+                      <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider hidden sm:table-cell">Duration</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-700/50">
@@ -287,18 +287,17 @@ export default function PlaylistDetailPage() {
                         }`}
                         onClick={() => setCurrentTrackIndex(index)}
                       >
-                        <td className="px-3 sm:px-4 py-3 whitespace-nowrap text-slate-400"> {/* Adjusted padding */}
+                        <td className="px-3 sm:px-4 py-3 whitespace-nowrap text-slate-400">
                           {index + 1}
                         </td>
-                        <td className="px-3 sm:px-4 py-3"> {/* Adjusted padding */}
+                        <td className="px-3 sm:px-4 py-3">
                           <div className="font-medium truncate">{track.audio_file.title}</div>
-                           {/* Show artist below title on smaller screens where artist column is hidden */}
                           <div className="text-xs text-slate-500 md:hidden truncate">{track.audio_file.artist || 'Unknown'}</div>
                         </td>
-                        <td className="px-3 sm:px-4 py-3 text-slate-400 hidden md:table-cell"> {/* Adjusted padding */}
+                        <td className="px-3 sm:px-4 py-3 text-slate-400 hidden md:table-cell">
                           <div className="truncate">{track.audio_file.artist || 'Unknown'}</div>
                         </td>
-                        <td className="px-3 sm:px-4 py-3 whitespace-nowrap text-slate-400 hidden sm:table-cell"> {/* Adjusted padding */}
+                        <td className="px-3 sm:px-4 py-3 whitespace-nowrap text-slate-400 hidden sm:table-cell">
                           {formatDuration(track.audio_file.duration)}
                         </td>
                       </tr>
@@ -311,18 +310,18 @@ export default function PlaylistDetailPage() {
         </div>
 
         {/* Sidebar for Player and Embed */}
-        <div className="lg:col-span-1 space-y-6"> {/* Takes 1 out of 3 columns on large screens */}
+        <div className="lg:col-span-1 space-y-6">
           {tracks.length > 0 && (
-            <div className="sticky top-20"> {/* Keeps player sticky on scroll */}
+            <div className="sticky top-20">
               <WaveformPlayer
                 tracks={tracks}
                 currentTrackIndex={currentTrackIndex}
                 onTrackChange={setCurrentTrackIndex}
               />
 
-              {playlist.is_public && playlistId && (
+              {collection.is_public && collectionId && (
                 <div className="mt-6">
-                  <PlaylistEmbed playlistId={playlistId} />
+                  <CollectionEmbed collectionId={collectionId} />
                 </div>
               )}
             </div>

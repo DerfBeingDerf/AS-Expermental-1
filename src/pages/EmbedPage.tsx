@@ -3,36 +3,36 @@ import { useParams } from 'react-router-dom';
 import { Music } from 'lucide-react';
 import WaveformPlayer from '../components/audio/WaveformPlayer';
 import LoadingSpinner from '../components/layout/LoadingSpinner';
-import { getPublicPlaylist } from '../lib/api';
-import { PlaylistTrack, Playlist } from '../types';
+import { getPublicCollection } from '../lib/api';
+import { CollectionTrack, Collection } from '../types';
 
 export default function EmbedPage() {
-  const { playlistId } = useParams<{ playlistId: string }>();
-  const [playlist, setPlaylist] = useState<Playlist | null>(null);
-  const [tracks, setTracks] = useState<PlaylistTrack[]>([]);
+  const { collectionId } = useParams<{ collectionId: string }>();
+  const [collection, setCollection] = useState<Collection | null>(null);
+  const [tracks, setTracks] = useState<CollectionTrack[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
 
   useEffect(() => {
-    const fetchPublicPlaylist = async () => {
-      if (!playlistId) return;
+    const fetchPublicCollection = async () => {
+      if (!collectionId) return;
       
       try {
         setIsLoading(true);
-        const { playlist, tracks } = await getPublicPlaylist(playlistId);
-        setPlaylist(playlist);
+        const { collection, tracks } = await getPublicCollection(collectionId);
+        setCollection(collection);
         setTracks(tracks);
       } catch (err) {
-        setError('This playlist is not available.');
+        setError('This collection is not available.');
         console.error(err);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchPublicPlaylist();
-  }, [playlistId]);
+    fetchPublicCollection();
+  }, [collectionId]);
 
   useEffect(() => {
     document.body.classList.add('embed-player');
@@ -47,14 +47,14 @@ export default function EmbedPage() {
     );
   }
 
-  if (error || !playlist) {
+  if (error || !collection) {
     return (
       <div className="flex justify-center items-center h-screen p-4">
         <div className="text-center">
           <Music size={32} className="text-sky-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium mb-2">Playlist Unavailable</h3>
+          <h3 className="text-lg font-medium mb-2">Collection Unavailable</h3>
           <p className="text-slate-400 text-sm">
-            This playlist may be private or no longer exists.
+            This collection may be private or no longer exists.
           </p>
         </div>
       </div>
@@ -66,9 +66,9 @@ export default function EmbedPage() {
       <div className="flex-1 flex flex-col md:flex-row">
         <div className="md:w-1/2 lg:w-2/5 border-b md:border-b-0 md:border-r border-slate-700/30">
           <div className="p-4 border-b border-slate-700/30 bg-gradient-to-r from-sky-500/5 to-transparent">
-            <h1 className="text-lg font-semibold mb-1">{playlist.title}</h1>
-            {playlist.description && (
-              <p className="text-slate-300 text-sm">{playlist.description}</p>
+            <h1 className="text-lg font-semibold mb-1">{collection.title}</h1>
+            {collection.description && (
+              <p className="text-slate-300 text-sm">{collection.description}</p>
             )}
           </div>
           
@@ -77,7 +77,7 @@ export default function EmbedPage() {
               <div className="flex items-center justify-center h-full p-4">
                 <div className="text-center">
                   <Music size={24} className="text-sky-400 mx-auto mb-2" />
-                  <p className="text-slate-400 text-sm">This playlist has no tracks.</p>
+                  <p className="text-slate-400 text-sm">This collection has no tracks.</p>
                 </div>
               </div>
             ) : (

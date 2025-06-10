@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Play, Pause, SkipBack, SkipForward, Volume2 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { PlaylistTrack } from '../../types';
+import { CollectionTrack } from '../../types';
 
 type AudioPlayerProps = {
-  tracks: PlaylistTrack[];
+  tracks: CollectionTrack[];
   currentTrackIndex: number;
   onTrackChange: (index: number) => void;
 };

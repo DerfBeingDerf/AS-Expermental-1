@@ -16,13 +16,13 @@ export default function HomePage() {
     },
     {
       icon: <ListMusic className="h-6 w-6 text-sky-400" />,
-      title: 'Create Playlists',
-      description: 'Organize your audio into playlists for easy access and sharing.',
+      title: 'Create Collections',
+      description: 'Organize your audio into collections for easy access and sharing.',
     },
     {
       icon: <ExternalLink className="h-6 w-6 text-sky-400" />,
       title: 'Share & Embed',
-      description: 'Share your playlists or embed them directly on your website or blog.',
+      description: 'Share your collections or embed them directly on your website or blog.',
     },
   ];
 

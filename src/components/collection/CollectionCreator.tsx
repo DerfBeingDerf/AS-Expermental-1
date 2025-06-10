@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { PlusCircle, Loader2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { createPlaylist } from '../../lib/api';
+import { createCollection } from '../../lib/api';
 
-type PlaylistCreatorProps = {
-  onPlaylistCreated: () => void;
+type CollectionCreatorProps = {
+  onCollectionCreated: () => void;
 };
 
-export default function PlaylistCreator({ onPlaylistCreated }: PlaylistCreatorProps) {
+export default function CollectionCreator({ onCollectionCreated }: CollectionCreatorProps) {
   const { user } = useAuth();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -20,12 +20,12 @@ export default function PlaylistCreator({ onPlaylistCreated }: PlaylistCreatorPr
     e.preventDefault();
     
     if (!user) {
-      setError('You must be logged in to create playlists.');
+      setError('You must be logged in to create collections.');
       return;
     }
     
     if (!title.trim()) {
-      setError('Please enter a title for your playlist.');
+      setError('Please enter a title for your collection.');
       return;
     }
     
@@ -33,7 +33,7 @@ export default function PlaylistCreator({ onPlaylistCreated }: PlaylistCreatorPr
     setError(null);
     
     try {
-      await createPlaylist(
+      await createCollection(
         title,
         user.id,
         description || undefined,
@@ -47,9 +47,9 @@ export default function PlaylistCreator({ onPlaylistCreated }: PlaylistCreatorPr
       setIsFormOpen(false);
       
       // Notify parent component
-      onPlaylistCreated();
+      onCollectionCreated();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create playlist.');
+      setError(err instanceof Error ? err.message : 'Failed to create collection.');
     } finally {
       setIsCreating(false);
     }
@@ -58,13 +58,13 @@ export default function PlaylistCreator({ onPlaylistCreated }: PlaylistCreatorPr
   return (
     <div className="card mb-6">
       <div className="p-4 flex justify-between items-center">
-        <h2 className="text-lg font-semibold">Create New Playlist</h2>
+        <h2 className="text-lg font-semibold">Create New Collection</h2>
         <button
           onClick={() => setIsFormOpen(!isFormOpen)}
           className="text-sky-400 hover:text-sky-300 flex items-center"
         >
           <PlusCircle size={20} className="mr-1" />
-          <span className="hidden sm:inline">{isFormOpen ? 'Cancel' : 'New Playlist'}</span>
+          <span className="hidden sm:inline">{isFormOpen ? 'Cancel' : 'New Collection'}</span>
         </button>
       </div>
       
@@ -85,7 +85,7 @@ export default function PlaylistCreator({ onPlaylistCreated }: PlaylistCreatorPr
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 className="input"
-                placeholder="My Awesome Playlist"
+                placeholder="My Awesome Collection"
                 required
               />
             </div>
@@ -110,7 +110,7 @@ export default function PlaylistCreator({ onPlaylistCreated }: PlaylistCreatorPr
                 className="h-4 w-4 rounded border-slate-600 text-sky-500 focus:ring-sky-500 bg-slate-700"
               />
               <label htmlFor="isPublic" className="ml-2 text-sm text-slate-300">
-                Make this playlist public and embeddable
+                Make this collection public and embeddable
               </label>
             </div>
             
@@ -126,7 +126,7 @@ export default function PlaylistCreator({ onPlaylistCreated }: PlaylistCreatorPr
                     Creating...
                   </span>
                 ) : (
-                  "Create Playlist"
+                  "Create Collection"
                 )}
               </button>
             </div>

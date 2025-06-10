@@ -2,10 +2,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Play, Pause, SkipBack, SkipForward } from 'lucide-react';
 import { motion } from 'framer-motion';
 import WaveSurfer from 'wavesurfer.js';
-import { PlaylistTrack } from '../../types';
+import { CollectionTrack } from '../../types';
 
 type WaveformPlayerProps = {
-  tracks: PlaylistTrack[];
+  tracks: CollectionTrack[];
   currentTrackIndex: number;
   onTrackChange: (index: number) => void;
 };

@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import PlaylistCreator from '../components/playlist/PlaylistCreator';
-import PlaylistCard from '../components/playlist/PlaylistCard';
+import CollectionCreator from '../components/collection/CollectionCreator';
+import CollectionCard from '../components/collection/CollectionCard';
 import LoadingSpinner from '../components/layout/LoadingSpinner';
-import { getUserPlaylists, getPlaylistTracks } from '../lib/api';
-import { Playlist } from '../types';
+import { getUserCollections, getCollectionTracks } from '../lib/api';
+import { Collection } from '../types';
 
 export default function LibraryPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
-  const [playlists, setPlaylists] = useState<Playlist[]>([]);
+  const [collections, setCollections] = useState<Collection[]>([]);
   const [trackCounts, setTrackCounts] = useState<Record<string, number>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,26 +21,26 @@ export default function LibraryPage() {
     }
   }, [user, loading, navigate]);
 
-  const fetchPlaylists = async () => {
+  const fetchCollections = async () => {
     if (!user) return;
     
     try {
       setIsLoading(true);
-      const userPlaylists = await getUserPlaylists(user.id);
-      setPlaylists(userPlaylists);
+      const userCollections = await getUserCollections(user.id);
+      setCollections(userCollections);
       
-      // Fetch track counts for each playlist
+      // Fetch track counts for each collection
       const counts: Record<string, number> = {};
       await Promise.all(
-        userPlaylists.map(async (playlist) => {
-          const tracks = await getPlaylistTracks(playlist.id);
-          counts[playlist.id] = tracks.length;
+        userCollections.map(async (collection) => {
+          const tracks = await getCollectionTracks(collection.id);
+          counts[collection.id] = tracks.length;
         })
       );
       
       setTrackCounts(counts);
     } catch (err) {
-      setError('Failed to load your playlists.');
+      setError('Failed to load your collections.');
       console.error(err);
     } finally {
       setIsLoading(false);
@@ -48,7 +48,7 @@ export default function LibraryPage() {
   };
 
   useEffect(() => {
-    fetchPlaylists();
+    fetchCollections();
   }, [user]);
 
   if (loading || isLoading) {
@@ -59,16 +59,43 @@ export default function LibraryPage() {
     );
   }
 
+  if (!user) {
+    return (
+      <div className="container mx-auto py-8 px-4">
+        <div className="text-center py-12">
+          <h1 className="text-3xl font-bold mb-4">Your Library</h1>
+          <p className="text-slate-400 mb-6">
+            Sign in to access your collections and audio files.
+          </p>
+          <div className="space-x-4">
+            <button 
+              onClick={() => navigate('/login')}
+              className="btn-primary"
+            >
+              Sign In
+            </button>
+            <button 
+              onClick={() => navigate('/register')}
+              className="btn-secondary"
+            >
+              Create Account
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Your Library</h1>
         <p className="text-slate-400">
-          Manage your playlists and audio files in one place.
+          Manage your collections and audio files in one place.
         </p>
       </div>
 
-      <PlaylistCreator onPlaylistCreated={fetchPlaylists} />
+      <CollectionCreator onCollectionCreated={fetchCollections} />
 
       {error && (
         <div className="bg-red-900/50 border border-red-700 text-white p-3 rounded-md mb-4 text-sm">
@@ -76,18 +103,18 @@ export default function LibraryPage() {
         </div>
       )}
       
-      {playlists.length === 0 ? (
+      {collections.length === 0 ? (
         <div className="text-center py-12 text-slate-400">
-          <p>You haven't created any playlists yet.</p>
-          <p className="mt-2">Create your first playlist to get started.</p>
+          <p>You haven't created any collections yet.</p>
+          <p className="mt-2">Create your first collection to get started.</p>
         </div>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {playlists.map((playlist) => (
-            <PlaylistCard 
-              key={playlist.id} 
-              playlist={playlist} 
-              trackCount={trackCounts[playlist.id] || 0}
+          {collections.map((collection) => (
+            <CollectionCard 
+              key={collection.id} 
+              collection={collection} 
+              trackCount={trackCounts[collection.id] || 0}
             />
           ))}
         </div>

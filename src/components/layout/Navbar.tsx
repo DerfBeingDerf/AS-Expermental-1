@@ -95,45 +95,41 @@ export default function Navbar() {
                 )}
               </Link>
               
-              {user && (
-                <>
-                  <Link 
-                    to="/library" 
-                    className={`px-3 h-full flex items-center space-x-2 transition-colors relative ${
-                      isActive('/library') 
-                        ? 'text-sky-400' 
-                        : 'text-slate-400 hover:text-white'
-                    }`}
-                  >
-                    <Library size={18} />
-                    <span>Library</span>
-                    {isActive('/library') && (
-                      <motion.div 
-                        layoutId="nav-indicator"
-                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-sky-400"
-                      />
-                    )}
-                  </Link>
-                  
-                  <Link 
-                    to="/upload" 
-                    className={`px-3 h-full flex items-center space-x-2 transition-colors relative ${
-                      isActive('/upload') 
-                        ? 'text-sky-400' 
-                        : 'text-slate-400 hover:text-white'
-                    }`}
-                  >
-                    <Upload size={18} />
-                    <span>Upload</span>
-                    {isActive('/upload') && (
-                      <motion.div 
-                        layoutId="nav-indicator"
-                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-sky-400"
-                      />
-                    )}
-                  </Link>
-                </>
-              )}
+              <Link 
+                to="/library" 
+                className={`px-3 h-full flex items-center space-x-2 transition-colors relative ${
+                  isActive('/library') 
+                    ? 'text-sky-400' 
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <Library size={18} />
+                <span>Library</span>
+                {isActive('/library') && (
+                  <motion.div 
+                    layoutId="nav-indicator"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-sky-400"
+                  />
+                )}
+              </Link>
+              
+              <Link 
+                to="/upload" 
+                className={`px-3 h-full flex items-center space-x-2 transition-colors relative ${
+                  isActive('/upload') 
+                    ? 'text-sky-400' 
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <Upload size={18} />
+                <span>Upload</span>
+                {isActive('/upload') && (
+                  <motion.div 
+                    layoutId="nav-indicator"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-sky-400"
+                  />
+                )}
+              </Link>
             </div>
           </nav>
         </div>

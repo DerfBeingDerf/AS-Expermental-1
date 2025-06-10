@@ -2,16 +2,16 @@ import React, { useState } from 'react';
 import { Copy, Check, Code } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-type PlaylistEmbedProps = {
-  playlistId: string;
+type CollectionEmbedProps = {
+  collectionId: string;
 };
 
-export default function PlaylistEmbed({ playlistId }: PlaylistEmbedProps) {
+export default function CollectionEmbed({ collectionId }: CollectionEmbedProps) {
   const [copied, setCopied] = useState(false);
   
   // Create the embed code with responsive styling
   const hostUrl = window.location.origin;
-  const embedUrl = `${hostUrl}/embed/${playlistId}`;
+  const embedUrl = `${hostUrl}/embed/${collectionId}`;
   const embedCode = `<iframe 
   src="${embedUrl}"
   style="border: 0; width: 100%; height: 100%; min-height: 400px; overflow: auto; background: transparent;"
@@ -30,11 +30,11 @@ export default function PlaylistEmbed({ playlistId }: PlaylistEmbedProps) {
     <div className="card p-5">
       <div className="flex items-center mb-4">
         <Code className="text-sky-400 mr-2" size={20} />
-        <h3 className="text-lg font-semibold">Embed Playlist</h3>
+        <h3 className="text-lg font-semibold">Embed Collection</h3>
       </div>
       
       <p className="text-slate-300 text-sm mb-4">
-        Copy this code to embed your playlist on any website or blog.
+        Copy this code to embed your collection on any website or blog.
       </p>
       
       <div className="bg-slate-900 rounded-md p-3 overflow-x-auto mb-4">

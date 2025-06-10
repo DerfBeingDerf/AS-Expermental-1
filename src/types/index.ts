@@ -10,7 +10,7 @@ export interface AudioFile {
   created_at: string;
 }
 
-export interface Playlist {
+export interface Collection {
   id: string;
   user_id: string;
   title: string;
@@ -21,9 +21,9 @@ export interface Playlist {
   updated_at: string;
 }
 
-export interface PlaylistTrack {
+export interface CollectionTrack {
   id: string;
-  playlist_id: string;
+  collection_id: string;
   audio_id: string;
   position: number;
   audio_file: AudioFile;

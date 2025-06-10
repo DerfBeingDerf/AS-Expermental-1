@@ -9,7 +9,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import UploadPage from './pages/UploadPage';
 import LibraryPage from './pages/LibraryPage';
-import PlaylistDetailPage from './pages/PlaylistDetailPage';
+import CollectionDetailPage from './pages/CollectionDetailPage';
 import EmbedPage from './pages/EmbedPage';
 
 function App() {
@@ -42,16 +42,16 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           
-          {/* Protected routes */}
+          {/* Public routes */}
           <Route path="/upload" element={<UploadPage />} />
           <Route path="/library" element={<LibraryPage />} />
-          <Route path="/playlist/:playlistId" element={<PlaylistDetailPage />} />
+          <Route path="/collection/:collectionId" element={<CollectionDetailPage />} />
           
           {/* Public embed route */}
-          <Route path="/embed/:playlistId" element={<EmbedPage />} />
+          <Route path="/embed/:collectionId" element={<EmbedPage />} />
           
           {/* Fallback route */}
-          <Route path="*" element={<Navigate to="/\" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
     </>

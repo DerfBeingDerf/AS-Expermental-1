@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { AudioFile, Playlist, PlaylistTrack } from '../types';
+import { AudioFile, Collection, CollectionTrack } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 
 // Audio file operations
@@ -82,15 +82,15 @@ export const getAudioFile = async (audioId: string): Promise<AudioFile> => {
   return data;
 };
 
-// Playlist operations
-export const createPlaylist = async (
+// Collection operations
+export const createCollection = async (
   title: string,
   userId: string,
   description?: string,
   isPublic: boolean = true
-): Promise<Playlist> => {
+): Promise<Collection> => {
   const { data, error } = await supabase
-    .from('playlists')
+    .from('collections')
     .insert({
       user_id: userId,
       title,
@@ -101,131 +101,131 @@ export const createPlaylist = async (
     .single();
 
   if (error) {
-    throw new Error(`Error creating playlist: ${error.message}`);
+    throw new Error(`Error creating collection: ${error.message}`);
   }
 
   return data;
 };
 
-export const getUserPlaylists = async (userId: string): Promise<Playlist[]> => {
+export const getUserCollections = async (userId: string): Promise<Collection[]> => {
   const { data, error } = await supabase
-    .from('playlists')
+    .from('collections')
     .select('*')
     .eq('user_id', userId)
     .order('created_at', { ascending: false });
 
   if (error) {
-    throw new Error(`Error fetching playlists: ${error.message}`);
+    throw new Error(`Error fetching collections: ${error.message}`);
   }
 
   return data || [];
 };
 
-export const getPlaylist = async (playlistId: string): Promise<Playlist> => {
+export const getCollection = async (collectionId: string): Promise<Collection> => {
   const { data, error } = await supabase
-    .from('playlists')
+    .from('collections')
     .select('*')
-    .eq('id', playlistId)
+    .eq('id', collectionId)
     .single();
 
   if (error) {
-    throw new Error(`Error fetching playlist: ${error.message}`);
+    throw new Error(`Error fetching collection: ${error.message}`);
   }
 
   return data;
 };
 
-export const getPlaylistTracks = async (playlistId: string): Promise<PlaylistTrack[]> => {
+export const getCollectionTracks = async (collectionId: string): Promise<CollectionTrack[]> => {
   const { data, error } = await supabase
-    .from('playlist_tracks')
+    .from('collection_tracks')
     .select(`
       *,
       audio_file:audio_id(*)
     `)
-    .eq('playlist_id', playlistId)
+    .eq('collection_id', collectionId)
     .order('position', { ascending: true });
 
   if (error) {
-    throw new Error(`Error fetching playlist tracks: ${error.message}`);
+    throw new Error(`Error fetching collection tracks: ${error.message}`);
   }
 
   return data || [];
 };
 
-export const addTrackToPlaylist = async (
-  playlistId: string,
+export const addTrackToCollection = async (
+  collectionId: string,
   audioId: string,
   position: number
 ): Promise<void> => {
   const { error } = await supabase
-    .from('playlist_tracks')
+    .from('collection_tracks')
     .insert({
-      playlist_id: playlistId,
+      collection_id: collectionId,
       audio_id: audioId,
       position,
     });
 
   if (error) {
-    throw new Error(`Error adding track to playlist: ${error.message}`);
+    throw new Error(`Error adding track to collection: ${error.message}`);
   }
 };
 
-export const removeTrackFromPlaylist = async (
-  playlistTrackId: string
+export const removeTrackFromCollection = async (
+  collectionTrackId: string
 ): Promise<void> => {
   const { error } = await supabase
-    .from('playlist_tracks')
+    .from('collection_tracks')
     .delete()
-    .eq('id', playlistTrackId);
+    .eq('id', collectionTrackId);
 
   if (error) {
-    throw new Error(`Error removing track from playlist: ${error.message}`);
+    throw new Error(`Error removing track from collection: ${error.message}`);
   }
 };
 
-export const updatePlaylistTrackPositions = async (
+export const updateCollectionTrackPositions = async (
   tracks: { id: string; position: number }[]
 ): Promise<void> => {
   // Using Promise.all to update all tracks concurrently
   await Promise.all(
     tracks.map(({ id, position }) => 
       supabase
-        .from('playlist_tracks')
+        .from('collection_tracks')
         .update({ position })
         .eq('id', id)
     )
   );
 };
 
-export const getPublicPlaylist = async (playlistId: string): Promise<{
-  playlist: Playlist;
-  tracks: PlaylistTrack[];
+export const getPublicCollection = async (collectionId: string): Promise<{
+  collection: Collection;
+  tracks: CollectionTrack[];
 }> => {
-  // First get the playlist
-  const { data: playlist, error: playlistError } = await supabase
-    .from('playlists')
+  // First get the collection
+  const { data: collection, error: collectionError } = await supabase
+    .from('collections')
     .select('*')
-    .eq('id', playlistId)
+    .eq('id', collectionId)
     .eq('is_public', true)
     .single();
 
-  if (playlistError) {
-    throw new Error(`Error fetching public playlist: ${playlistError.message}`);
+  if (collectionError) {
+    throw new Error(`Error fetching public collection: ${collectionError.message}`);
   }
 
   // Then get the tracks
   const { data: tracks, error: tracksError } = await supabase
-    .from('playlist_tracks')
+    .from('collection_tracks')
     .select(`
       *,
       audio_file:audio_id(*)
     `)
-    .eq('playlist_id', playlistId)
+    .eq('collection_id', collectionId)
     .order('position', { ascending: true });
 
   if (tracksError) {
-    throw new Error(`Error fetching playlist tracks: ${tracksError.message}`);
+    throw new Error(`Error fetching collection tracks: ${tracksError.message}`);
   }
 
-  return { playlist, tracks: tracks || [] };
+  return { collection, tracks: tracks || [] };
 };
