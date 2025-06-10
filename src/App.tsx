@@ -51,7 +51,7 @@ function App() {
           <Route path="/embed/:collectionId" element={<EmbedPage />} />
           
           {/* Fallback route */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<Navigate to="/\" replace />} />
         </Routes>
       </main>
     </>
